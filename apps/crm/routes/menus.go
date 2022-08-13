@@ -12,9 +12,8 @@ func MenusRoutes() []*server.Route {
 			uno.Get("/menu/([^/]+)/items/([0-9]+)/update", MenusItemsUpdate),
 		*/
 
-		//uno.Get("/menus", controllers.MenusGet),
-		uno.Get("/menus/([^/]+)", controllers.MenusItemGet),
-		//uno.Get("/menus-items", controllers.MenusItemsGet),
+		uno.Get("/menus/([^/]+)", controllers.MenusFind),
+		uno.Get("/menus", controllers.MenusList),
 	}
 	return routes
 }

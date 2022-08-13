@@ -9,6 +9,8 @@ import (
 	"github.com/glugate/uno/pkg/uno/server"
 )
 
+var instance *Uno
+
 // Uno
 type Uno struct {
 	DB     *db.DB
@@ -32,6 +34,15 @@ func (u *Uno) RegisterRoutes(routes []*server.Route) {
 // Run executes the applications
 func (u *Uno) Run() {
 	u.Server.Run()
+}
+
+// Instance returns singledon instance
+// of our application struct
+func Instance() *Uno {
+	if instance == nil {
+		instance = NewUno()
+	}
+	return instance
 }
 
 // Get creates new route with GET method and passed pattern and handler

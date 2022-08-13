@@ -5,84 +5,104 @@ import (
 	"fmt"
 
 	models "github.com/glugate/uno/apps/crm/models"
-	"github.com/glugate/uno/pkg/uno/db"
-	"gorm.io/gorm"
+	"github.com/glugate/uno/pkg/uno"
 )
 
 type Repo interface {
-	Create(o models.Menu) (*models.Menu, error)
-	Update(o models.Menu) (bool, error)
-	Delete(o models.Menu) (bool, error)
-	Has(id int64) bool
-	Find(id int64) (*models.Menu, error)
-	List() ([]*models.Menu, error)
+	// Create(o models.Menu) (*models.Menu, error)
+	// Update(o models.Menu) (bool, error)
+	// Delete(o models.Menu) (bool, error)
+	// Has(id int64) bool
+	Find(id string) (*models.Menu, error)
+	List() ([]models.Menu, error)
 }
 
 type MenuRepo struct {
-	DB      *sql.DB
-	adapter *db.Adapter
+	stdDB *sql.DB
 }
 
-func NewMenuRepo(stdDB *sql.DB, dsn string) Repo {
+// NewMenuRepo grabs the database connection from already
+// instatiated app and creates new Repo object with live db connection.
+func NewMenuRepo() (Repo, error) {
+	app := uno.Instance()
+	if app == nil {
+		return nil, fmt.Errorf("uno app not instatiated. Please run uno.NewNno()")
+	}
 	return &MenuRepo{
-		DB:      stdDB,
-		adapter: db.NewAdapter(dsn, stdDB),
-	}
+		stdDB: app.DB.StdDB,
+	}, nil
 }
 
-func (r *MenuRepo) Create(o models.Menu) (*models.Menu, error) {
-	err := r.adapter.Create(&o).Error
-	if err != nil {
-		return &o, err
-	}
-	return &o, nil
-}
-
-func (r *MenuRepo) Where(w any) *gorm.DB {
-	return r.adapter.Where(w)
-}
-
-func (r *MenuRepo) Update(o models.Menu) (bool, error) {
-	originMenu := new(models.Menu)
-
-	err := r.adapter.Where("id=?", o.ID).First(originMenu).Updates(map[string]interface{}{
-		"label": o.Label + " - updated",
-	}).Error
-
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func (r *MenuRepo) Delete(o models.Menu) (bool, error) {
-	fmt.Println(o.ID)
-	err := r.adapter.Where("id=?", o.ID).Delete(&models.Menu{}).Error
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
-func (r *MenuRepo) Has(id int64) bool {
-	err := r.adapter.Where("id=?", id).First(models.Menu{}).Error
-	return err == nil
-}
-
-func (r *MenuRepo) Find(id int64) (*models.Menu, error) {
-	product := new(models.Menu)
-
-	err := r.adapter.Where("id=?", id).First(product).Error
+// Find a model by its primary key
+func (o *MenuRepo) Find(id string) (*models.Menu, error) {
+	rows := o.stdDB.QueryRow("SELECT id, label from menus WHERE id=?", id)
+	menu := models.Menu{}
+	err := rows.Scan(
+		&menu.ID,
+		&menu.Label,
+	)
 	if err != nil {
 		return nil, err
 	}
-	return product, nil
+	return &menu, nil
 }
 
-func (r *MenuRepo) List() (products []*models.Menu, err error) {
-	err = r.adapter.Find(&products).Error
+// List retuns slice of all Menus from database
+func (o *MenuRepo) List() (items []models.Menu, err error) {
+	rows, err := o.stdDB.Query("SELECT id, label from menus")
 	if err != nil {
 		return nil, err
 	}
-	return products, nil
+	for rows.Next() {
+		menu := models.Menu{}
+		rows.Scan(
+			&menu.ID,
+			&menu.Label,
+		)
+
+		// Attach menu items for this menu
+		menu.Items, err = o.ItemsList(menu.ID)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, menu)
+	}
+	return items, nil
+}
+
+/*
+
+func (r *MenuRepo) Create(o models.Menu) (*models.Menu, error) {}
+
+func (r *MenuRepo) Update(o models.Menu) (bool, error) {}
+
+func (r *MenuRepo) Delete(o models.Menu) (bool, error) {}
+
+func (r *MenuRepo) Has(id int64) bool {}
+
+*/
+
+// ItemsList retuns slice of all Menu Items for a menu from database
+func (o *MenuRepo) ItemsList(id int64) (items []models.MenuItem, err error) {
+
+	stmt, err := o.stdDB.Prepare("SELECT menu_id, label, path, ordering FROM menu_items WHERE menu_id = ?")
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(id)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		item := models.MenuItem{}
+		rows.Scan(
+			&item.ID,
+			&item.Label,
+			&item.Path,
+			&item.Ordering,
+		)
+		items = append(items, item)
+	}
+	return items, nil
 }

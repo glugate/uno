@@ -1,7 +1,7 @@
 CREATE TABLE menu_items
 	(
 		`id`         INTEGER PRIMARY KEY AUTO_INCREMENT,
-		`menus_id`   INTEGER,
+		`menu_id`   INTEGER,
 		`label`      TEXT NOT NULL,
 		`path`       TEXT,
 		`ordering`   INTEGER,
