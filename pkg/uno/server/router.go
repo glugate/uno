@@ -24,12 +24,12 @@ func (r *Router) RegisterRoutes(routes []*Route) {
 }
 
 // ServeHTTP implemenths http.Handler interface
-func (rtr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (o *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var allow []string
 
-	for _, route := range rtr.Routes {
+	for _, route := range o.Routes {
 		matches := route.Regex.FindStringSubmatch(r.URL.Path)
 		if len(matches) > 0 {
 			if r.Method != route.Method {

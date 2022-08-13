@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/glugate/uno/apps/crm/routes"
 	"github.com/glugate/uno/pkg/uno"
 	"github.com/glugate/uno/pkg/uno/log"
 	"github.com/joho/godotenv"
@@ -29,10 +30,9 @@ func main() {
 	log.Default().Success("You are a superstar!")
 
 	app := uno.NewUno()
-	app.Metrics()
+	app.RegisterRoutes(routes.All())
 
-	if err := app.Server.Run(); err != nil {
-		panic(err)
-	}
+	app.Metrics()
+	app.Run()
 
 }

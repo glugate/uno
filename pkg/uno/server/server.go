@@ -24,11 +24,21 @@ func NewServer() *Server {
 		},
 		Router: NewRouter(),
 	}
+
+	// setup server handler
+	srv.stdServer.Handler = srv.Router
+
 	return srv
 }
 
+// RegisterRoutes registeres all or partial routes
+// that are passed and kept in Router
+func (s *Server) RegisterRoutes(routes []*Route) {
+	s.Router.RegisterRoutes(routes)
+}
+
 // Run starts the http server on specified port in .env file
-func (o *Server) Run() (err error) {
+func (o *Server) Run() {
 	address, exists := os.LookupEnv("ADDRESS")
 	if !exists {
 		address = ServerDefaultAddress
@@ -38,9 +48,9 @@ func (o *Server) Run() (err error) {
 		port = ServerDefaultPort
 	}
 	url := fmt.Sprintf("%s:%s", address, port)
+	log.Default().Verbose("There are %d routes defined.", len(o.Router.Routes))
 	log.DefaultLogFactory().Default().Info("Server running at: %S", url)
 	if err := o.stdServer.ListenAndServe(); err != http.ErrServerClosed {
-		return err
+		panic(err)
 	}
-	return nil
 }
