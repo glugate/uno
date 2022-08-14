@@ -53,7 +53,7 @@ func (o *UsersRepo) Find(id string) (*models.User, error) {
 
 // List retuns slice of all Users from database
 func (o *UsersRepo) List() (items []models.User, err error) {
-	stmt, err := o.stdDB.Prepare("SELECT id, first_name, last_name, email FROM users")
+	stmt, err := o.stdDB.Prepare("SELECT id, first_name, last_name, email, birth_date, title, status, is_active FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +68,10 @@ func (o *UsersRepo) List() (items []models.User, err error) {
 			&user.FirstName,
 			&user.LastName,
 			&user.Email,
+			&user.BirthDate,
+			&user.Title,
+			&user.Status,
+			&user.IsActive,
 		)
 		items = append(items, user)
 	}

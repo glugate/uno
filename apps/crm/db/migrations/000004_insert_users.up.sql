@@ -1,2 +1,2 @@
-INSERT INTO users (`first_name`, `last_name`, `email`, `password`) VALUES ('Ervin', 'Bećiragić', 'ervinbeciragic@gmail.com', 'password');
-INSERT INTO users (`first_name`, `last_name`, `email`, `password`) VALUES ('Uno', 'Glugate', 'glugate.uno@gmail.com', 'password');
+INSERT INTO users (`first_name`, `last_name`, `email`, `phone`, `birth_date`, `title`, `is_active`, `status`, `password`) VALUES ('Ervin', 'Bećiragić', 'ervinbeciragic@gmail.com', '+387 61 603-979', '1983-01-13', 'CTO', 1, 'Active', 'password');
+INSERT INTO users (`first_name`, `last_name`, `email`, `phone`, `birth_date`, `title`, `is_active`, `status`, `password`) VALUES ('Uno', 'Glugate', 'glugate.uno@gmail.com', '+387 61 111 222',  '2000-01-01', 'Product manager', 1, 'Pending', 'password');
