@@ -13,9 +13,6 @@ require (
 )
 
 require (
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
-	gorm.io/gorm v1.23.8
 )

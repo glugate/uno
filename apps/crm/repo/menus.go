@@ -44,6 +44,13 @@ func (o *MenuRepo) Find(id string) (*models.Menu, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Attach menu items for this menu
+	menu.Items, err = o.ItemsList(menu.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &menu, nil
 }
 
